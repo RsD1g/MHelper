@@ -295,6 +295,9 @@ var SM=(function(){
  function hex(c){return[parseInt(c.substr(1,2),16),parseInt(c.substr(3,2),16),parseInt(c.substr(5,2),16)]}
  function bname(i){if(VER[mcI][1]<7&&OLDN[i])return OLDN[i];return BN[i]?BN[i][0]:"Биом #"+i}
  function bcol(i){return BN[i]?BN[i][1]:"#888888"}
+ var TINT={};
+ function tinted(img,color){var k=img.src+"|"+color,c=TINT[k];if(c)return c;c=document.createElement("canvas");c.width=img.naturalWidth;c.height=img.naturalHeight;var g=c.getContext("2d");g.drawImage(img,0,0);g.globalCompositeOperation="source-in";g.fillStyle=color;g.fillRect(0,0,c.width,c.height);TINT[k]=c;return c}
+ function markerColor(x,z,fallback){if(!BIO.ex)return fallback;var id=bioAt(x,z);return id==null||id<0?fallback:bcol(id)}
  function bioLoad(){if(BIO.ex||BIO.err||BIO.ld)return;BIO.ld=1;try{var b=atob(CBW),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
   WebAssembly.instantiate(u,{}).then(function(r){BIO.ex=r.instance.exports;lay();draw()},function(){BIO.err=1;draw()})}catch(e){BIO.err=1}}
  var DC=function(){return dim=="o"?0:dim=="n"?-1:1},QY=function(){return dim=="n"?15:64},BY=function(){return dim=="o"?256:dim=="n"?60:64};
@@ -337,8 +340,8 @@ var SM=(function(){
     if(BIO.ex){var c=spos(t,rx,rz);if(!c)continue;bx=c[0];bz=c[1]}
     else{var p=reg(rx,rz,t);bx=p[0]*16+8;bz=p[1]*16+8;if((t[9]=="F"||t[9]=="B")&&nk(p[0],p[1])!=t[9])continue;if(t[9]=="P"&&!frq(p[0],p[1]))continue;if(t[9]=="E"&&Math.hypot(bx,bz)<1008)continue}
     if(bx<x0||bx>x1||bz<z0||bz>z1)continue;
-    cx.textAlign="center";cx.textBaseline="middle";var mk=MK[t[0]];if(mk&&mk.complete&&mk.naturalWidth){var ms=18;cx.drawImage(mk,X(bx)-ms/2,Z(bz)-ms/2,ms,ms);}else{cx.font="18px sans-serif";cx.fillStyle=t[2];cx.fillText(t[3],X(bx),Z(bz));}hits.push({x:bx,z:bz,n:t[1],sx:X(bx),sy:Z(bz)})}});
-  if(dim=="e"&&on.gate&&stOk("gate"))for(var gi=0;gi<20;gi++){var ga=2*(-Math.PI+Math.PI/20*gi),gx2=Math.floor(96*Math.cos(ga)),gz2=Math.floor(96*Math.sin(ga));cx.textAlign="center";cx.textBaseline="middle";var gk=MK.gate;if(gk&&gk.complete&&gk.naturalWidth){cx.drawImage(gk,X(gx2)-9,Z(gz2)-9,18,18);}else{cx.font="18px sans-serif";cx.fillStyle="#3fd0c9";cx.fillText("🚪",X(gx2),Z(gz2));}hits.push({x:gx2,z:gz2,n:"Врата Энда",sx:X(gx2),sy:Z(gz2)})}
+    cx.textAlign="center";cx.textBaseline="middle";var mk=MK[t[0]],mc=markerColor(bx,bz,t[2]);if(mk&&mk.complete&&mk.naturalWidth){var ms=18;cx.drawImage(tinted(mk,mc),X(bx)-ms/2,Z(bz)-ms/2,ms,ms);}else{cx.font="18px sans-serif";cx.fillStyle=mc;cx.fillText(t[3],X(bx),Z(bz));}hits.push({x:bx,z:bz,n:t[1],sx:X(bx),sy:Z(bz)})}});
+  if(dim=="e"&&on.gate&&stOk("gate"))for(var gi=0;gi<20;gi++){var ga=2*(-Math.PI+Math.PI/20*gi),gx2=Math.floor(96*Math.cos(ga)),gz2=Math.floor(96*Math.sin(ga));cx.textAlign="center";cx.textBaseline="middle";var gk=MK.gate,gc=markerColor(gx2,gz2,"#3fd0c9");if(gk&&gk.complete&&gk.naturalWidth){cx.drawImage(tinted(gk,gc),X(gx2)-9,Z(gz2)-9,18,18);}else{cx.font="18px sans-serif";cx.fillStyle=gc;cx.fillText("🚪",X(gx2),Z(gz2));}hits.push({x:gx2,z:gz2,n:"Врата Энда",sx:X(gx2),sy:Z(gz2)})}
  legend(x0,x1,z0,z1)}
  function fit(){if(!cv)return;cv.width=cv.clientWidth;cv.height=Math.max(340,Math.round(innerHeight*.62));draw()}
  function info(t){$("sm_inf").textContent=t}
