@@ -636,7 +636,126 @@ addEventListener("hashchange",function(){try{RT=location.hash}catch(e){}show()})
   ['dragleave','drop'].forEach(e=>d.addEventListener(e,()=>d.classList.remove('dragover')));
 })();
 </script>
+<!---->
+<!-- Компактная скрытая палитра -->
+<div id="accent_wrap">
+  <button id="accent_toggle" type="button" aria-label="Настроить цвет" title="Цвет интерфейса">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+  </button>
+  <div id="accent_drawer">
+    <button type="button" class="sw-btn" data-c="emerald" style="--dot:#4ea832" title="Изумруд"></button>
+    <button type="button" class="sw-btn" data-c="diamond" style="--dot:#1ca3b8" title="Алмаз"></button>
+    <button type="button" class="sw-btn" data-c="redstone" style="--dot:#d63636" title="Редстоун"></button>
+    <button type="button" class="sw-btn" data-c="amethyst" style="--dot:#8b46c7" title="Аметист"></button>
+    <label class="sw-pick" title="Свой цвет">
+      <input type="color" id="accent_custom" value="#4ea832">
+      <span>+</span>
+    </label>
+  </div>
+</div>
 
+<style>
+#accent_wrap{
+  position:fixed;bottom:18px;left:18px;z-index:99;
+  display:flex;align-items:center;gap:6px;
+  padding:5px;border-radius:10px;
+  background:var(--panel);border:1px solid var(--line);
+  box-shadow:0 4px 14px rgba(0,0,0,.15);
+  opacity:.45;transition:opacity .2s ease;
+}
+#accent_wrap:hover,#accent_wrap.open{opacity:1}
+
+#accent_toggle{
+  width:30px;height:30px;padding:0;border-radius:7px;
+  background:transparent;color:var(--ink);box-shadow:none;
+  display:grid;place-items:center;
+}
+#accent_toggle:hover{background:var(--bg);filter:none}
+
+#accent_drawer{
+  display:flex;align-items:center;gap:6px;
+  max-width:0;overflow:hidden;opacity:0;
+  transition:max-width .25s ease, opacity .2s ease, padding .25s ease;
+}
+#accent_wrap.open #accent_drawer{max-width:180px;opacity:1;padding-right:4px}
+
+.sw-btn,.sw-pick{
+  width:20px;height:20px;padding:0;border-radius:5px;flex-shrink:0;
+  cursor:pointer;border:2px solid transparent;box-shadow:none;
+  transition:transform .12s;
+}
+.sw-btn{background:var(--dot)}
+.sw-btn:hover,.sw-pick:hover{transform:scale(1.15);filter:none}
+.sw-btn.on,.sw-pick.on{border-color:var(--ink);transform:scale(1.08)}
+
+.sw-pick{
+  position:relative;display:grid;place-items:center;overflow:hidden;
+  background:conic-gradient(#ff595e,#ffca3a,#8ac926,#1982c4,#6a4c93,#ff595e);
+  color:#fff;font:700 13px/1 system-ui,sans-serif;text-shadow:0 1px 2px rgba(0,0,0,.6);
+}
+.sw-pick input{
+  position:absolute;inset:-6px;width:32px;height:32px;
+  opacity:0;cursor:pointer;border:0;padding:0;
+}
+</style>
+
+<script>
+(()=>{
+  const wrap=document.getElementById('accent_wrap'),
+        tog=document.getElementById('accent_toggle'),
+        picker=document.getElementById('accent_custom'),
+        pickLabel=picker.parentElement;
+
+  tog.onclick=()=>wrap.classList.toggle('open');
+  document.addEventListener('click',e=>{if(!wrap.contains(e.target))wrap.classList.remove('open')});
+
+  const presets={
+    emerald:{l:'#3f7d2c',ld:'#2b591d',d:'#68b838',dd:'#468222',ink:'#b9f08a'},
+    diamond:{l:'#0e8a9c',ld:'#09606d',d:'#2bc4db',dd:'#198c9e',ink:'#8ceeff'},
+    redstone:{l:'#b82525',ld:'#821717',d:'#ef4444',dd:'#b91c1c',ink:'#ffa8a8'},
+    amethyst:{l:'#7338a0',ld:'#4f2370',d:'#a855f7',dd:'#7e22ce',ink:'#e0b3ff'}
+  };
+
+  // Автоматический расчёт тени и неонового оттенка для любого цвета из палитры
+  const hexToRgb=h=>{
+    const n=parseInt(h.slice(1),16);
+    return [(n>>16)&255,(n>>8)&255,n&255];
+  };
+  const rgbToHex=(r,g,b)=>'#'+[r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+  const shade=(hex,k)=>{const [r,g,b]=hexToRgb(hex);return rgbToHex(r*k,g*k,b*k)};
+  const tint=(hex,k)=>{const [r,g,b]=hexToRgb(hex);return rgbToHex(r+(255-r)*k,g+(255-g)*k,b+(255-b)*k)};
+
+  const applyAccent=val=>{
+    const isDark=document.documentElement.dataset.theme==='dark'||
+      (!document.documentElement.dataset.theme&&matchMedia('(prefers-color-scheme:dark)').matches);
+    const r=document.documentElement.style;
+
+    document.querySelectorAll('.sw-btn').forEach(b=>b.classList.toggle('on',b.dataset.c===val));
+    pickLabel.classList.toggle('on',val.startsWith('#'));
+
+    if(presets[val]){
+      const c=presets[val];
+      r.setProperty('--acc',isDark?c.d:c.l);
+      r.setProperty('--acc-dark',isDark?c.dd:c.ld);
+      r.setProperty('--codeink',c.ink);
+    }else if(val.startsWith('#')){
+      r.setProperty('--acc',val);
+      r.setProperty('--acc-dark',shade(val,.7));
+      r.setProperty('--codeink',tint(val,.48));
+      picker.value=val;
+    }
+    localStorage.setItem('mhelper_accent',val);
+  };
+
+  applyAccent(localStorage.getItem('mhelper_accent')||'emerald');
+
+  document.querySelectorAll('.sw-btn').forEach(b=>b.onclick=()=>applyAccent(b.dataset.c));
+  picker.oninput=e=>applyAccent(e.target.value);
+
+  new MutationObserver(()=>applyAccent(localStorage.getItem('mhelper_accent')||'emerald'))
+    .observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+})();
+</script>
 
 </body>
 </html>
