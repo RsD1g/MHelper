@@ -156,3 +156,9 @@ python3 tools/gen_registry.py generated > registry.yml
 Идеи и список возможностей взяты с сайтов [gamergeeks.net](https://www.gamergeeks.net/apps/minecraft), [mcseedmap.net](https://mcseedmap.net/) и [seedmap.app](https://www.seedmap.app/home/). Код написан заново и не копирует их реализации.
 
 Проект не является официальным продуктом Minecraft и не связан с Mojang или Microsoft.
+
+<div align="center">
+  <a href="ВАША_ССЫЛКА_НА_САЙТ">
+    <img src="https://demolab.com" alt="Перейти на сайт">
+  </a>
+</div>
