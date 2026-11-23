@@ -346,7 +346,7 @@ var SM=(function(){
  function zoom(f,px,py){var w=cv.width,h=cv.height,n=Math.min(8,Math.max(0.02,sc*f));if(px==null){px=w/2;py=h/2}ox+=(px-w/2)*(1/sc-1/n);oz+=(py-h/2)*(1/sc-1/n);sc=n;draw()}
  function pos(e){var r=cv.getBoundingClientRect();return[(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]}
  function lay(){var icon=function(s){return'<span style="font-size:16px;display:inline-block;width:20px;text-align:center">'+s+'</span>'},cb=function(k,s,l){return'<label class="chk"><input type="checkbox" data-k="'+k+'"'+(on[k]?" checked":"")+'>'+(s?icon(s):"")+l+"</label>"};
-  $("sm_sl").hidden=dim!="o";$("sm_ly").innerHTML=ST.filter(function(t){return t[8]==dim&&(!BIO.ex||rsz(t)>0)}).map(function(t){return cb(t[0],t[3],t[1])}).join("")+(dim=="e"?cb("gate","🚪","Врата Энда"):"")}
+  $("sm_sl").hidden=dim!="o";$("sm_ly").innerHTML=ST.filter(function(t){return t[8]==dim&&(!BIO.ex||rsz(t)>0)}).map(function(t){return cb(t[0],t[0]=="village"?"":t[3],t[1])}).join("")+(dim=="e"?cb("gate","🚪","Врата Энда"):"")}
  function init(){cv=$("sm_cv");cx=cv.getContext("2d");
   $("sm_dm").innerHTML=[["o","Поверхность"],["n","Ад"],["e","Энд"]].map(function(d){return'<button type="button" class="add dm'+(d[0]=="o"?" act":"")+'" data-d="'+d[0]+'">'+d[1]+"</button>"}).join("");lay();
   $("sm_dm").onclick=function(e){var d=e.target.dataset.d;if(!d)return;dim=d;[].forEach.call($("sm_dm").children,function(k){k.classList.toggle("act",k.dataset.d==d)});lay();ox=oz=0;sc=1;draw();info(d=="o"?"Поверхность.":d=="n"?"Ад: координаты Нижнего мира.":"Энд: города появляются только на внешних островах, дальше 1000 блоков от центра.")};
