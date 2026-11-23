@@ -264,7 +264,7 @@ var u=function(i){return document.getElementById(i)},hh=(RT||"#menu").slice(1),m
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb()};
 }
 var SM=(function(){
- var $=function(i){return document.getElementById(i)},cv,cx,seed=0n,ox=0,oz=0,sc=1,hits=[],bm=1,on={slime:1,village:1,portal:1,fort:1,bast:1,nportal:1,ecity:1,gate:1},dim="o",drag=null;
+ var $=function(i){return document.getElementById(i)},cv,cx,seed=0n,ox=0,oz=0,sc=1,hits=[],bm=1,on={slime:1,village:1,portal:1,fort:1,bast:1,nportal:1,ecity:1,gate:1},dim="o",drag=null,fade={};
  var M=(1n<<48n)-1n,MUL=0x5DEECE66Dn;
  function R(s){s=(BigInt.asUintN(64,s)^MUL)&M;return{n:function(b){s=(s*MUL+0xBn)&M;return Number(BigInt.asIntN(32,s>>(48n-BigInt(b))))},
   i:function(k){var r=this.n(31),m=k-1;if((k&m)==0)return Number((BigInt(k)*BigInt(r))>>31n);for(var u=r;((u-(r=u%k)+m)|0)<0;u=this.n(31));return r}}}
@@ -297,7 +297,7 @@ var SM=(function(){
  function bcol(i){return BN[i]?BN[i][1]:"#888888"}
  var TINT={};
  function tinted(img,color){var k=img.src+"|"+color,c=TINT[k];if(c)return c;c=document.createElement("canvas");c.width=img.naturalWidth;c.height=img.naturalHeight;var g=c.getContext("2d");g.drawImage(img,0,0);g.globalCompositeOperation="source-in";g.fillStyle=color;g.fillRect(0,0,c.width,c.height);TINT[k]=c;return c}
- function stamp(img,color,x,y,size){var b=tinted(img,"#000"),f=tinted(img,color),o=3,dx,dy;for(dy=-o;dy<=o;dy++)for(dx=-o;dx<=o;dx++)if(dx||dy)cx.drawImage(b,x+dx,y+dy,size,size);cx.drawImage(f,x,y,size,size)}
+ function stamp(img,color,x,y,size,id){cx.save();cx.globalAlpha=fade[id]?0.28:1;var b=tinted(img,"#000"),f=tinted(img,color),o=3,dx,dy;for(dy=-o;dy<=o;dy++)for(dx=-o;dx<=o;dx++)if(dx||dy)cx.drawImage(b,x+dx,y+dy,size,size);cx.drawImage(f,x,y,size,size);cx.restore()}
  function markerColor(x,z,fallback){if(!BIO.ex)return fallback;var id=bioAt(x,z);return id==null||id<0?fallback:bcol(id)}
  function bioLoad(){if(BIO.ex||BIO.err||BIO.ld)return;BIO.ld=1;try{var b=atob(CBW),u=new Uint8Array(b.length);for(var i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
   WebAssembly.instantiate(u,{}).then(function(r){BIO.ex=r.instance.exports;lay();draw()},function(){BIO.err=1;draw()})}catch(e){BIO.err=1}}
@@ -341,13 +341,15 @@ var SM=(function(){
     if(BIO.ex){var c=spos(t,rx,rz);if(!c)continue;bx=c[0];bz=c[1]}
     else{var p=reg(rx,rz,t);bx=p[0]*16+8;bz=p[1]*16+8;if((t[9]=="F"||t[9]=="B")&&nk(p[0],p[1])!=t[9])continue;if(t[9]=="P"&&!frq(p[0],p[1]))continue;if(t[9]=="E"&&Math.hypot(bx,bz)<1008)continue}
     if(bx<x0||bx>x1||bz<z0||bz>z1)continue;
-    cx.textAlign="center";cx.textBaseline="middle";var mk=MK[t[0]],mc=markerColor(bx,bz,t[2]);if(mk&&mk.complete&&mk.naturalWidth){var ms=18;stamp(mk,mc,X(bx)-ms/2,Z(bz)-ms/2,ms);}else{cx.font="18px sans-serif";cx.fillStyle=mc;cx.fillText(t[3],X(bx),Z(bz));}hits.push({x:bx,z:bz,n:t[1],sx:X(bx),sy:Z(bz)})}});
-  if(dim=="e"&&on.gate&&stOk("gate"))for(var gi=0;gi<20;gi++){var ga=2*(-Math.PI+Math.PI/20*gi),gx2=Math.floor(96*Math.cos(ga)),gz2=Math.floor(96*Math.sin(ga));cx.textAlign="center";cx.textBaseline="middle";var gk=MK.gate,gc=markerColor(gx2,gz2,"#3fd0c9");if(gk&&gk.complete&&gk.naturalWidth){stamp(gk,gc,X(gx2)-9,Z(gz2)-9,18);}else{cx.font="18px sans-serif";cx.fillStyle=gc;cx.fillText("🚪",X(gx2),Z(gz2));}hits.push({x:gx2,z:gz2,n:"Врата Энда",sx:X(gx2),sy:Z(gz2)})}
+    cx.textAlign="center";cx.textBaseline="middle";var mk=MK[t[0]],mc=markerColor(bx,bz,t[2]);var mid=t[0]+"|"+bx+"|"+bz;if(mk&&mk.complete&&mk.naturalWidth){var ms=18;stamp(mk,mc,X(bx)-ms/2,Z(bz)-ms/2,ms,mid);}else{cx.save();cx.globalAlpha=fade[mid]?0.28:1;cx.font="18px sans-serif";cx.fillStyle=mc;cx.fillText(t[3],X(bx),Z(bz));cx.restore()}hits.push({id:mid,x:bx,z:bz,n:t[1],sx:X(bx),sy:Z(bz)})}});
+  if(dim=="e"&&on.gate&&stOk("gate"))for(var gi=0;gi<20;gi++){var ga=2*(-Math.PI+Math.PI/20*gi),gx2=Math.floor(96*Math.cos(ga)),gz2=Math.floor(96*Math.sin(ga));cx.textAlign="center";cx.textBaseline="middle";var gk=MK.gate,gc=markerColor(gx2,gz2,"#3fd0c9");var gid="gate|"+gx2+"|"+gz2;if(gk&&gk.complete&&gk.naturalWidth){stamp(gk,gc,X(gx2)-9,Z(gz2)-9,18,gid);}else{cx.save();cx.globalAlpha=fade[gid]?0.28:1;cx.font="18px sans-serif";cx.fillStyle=gc;cx.fillText("🚪",X(gx2),Z(gz2));cx.restore()}hits.push({id:gid,x:gx2,z:gz2,n:"Врата Энда",sx:X(gx2),sy:Z(gz2)})}
  legend(x0,x1,z0,z1)}
  function fit(){if(!cv)return;cv.width=cv.clientWidth;cv.height=Math.max(340,Math.round(innerHeight*.62));draw()}
  function info(t){$("sm_inf").textContent=t}
- function go(){var t=$("sm_seed").value;seed=parse(t);$("sm_seed").value=seed.toString();ox=oz=0;sc=1;draw();info("Сид "+seed+". Перетаскивайте карту, колесо мыши или кнопки меняют масштаб.")}
- function zoom(f,px,py){var w=cv.width,h=cv.height,n=Math.min(8,Math.max(0.02,sc*f));if(px==null){px=w/2;py=h/2}ox+=(px-w/2)*(1/sc-1/n);oz+=(py-h/2)*(1/sc-1/n);sc=n;draw()}
+ function saveMap(){try{localStorage.setItem("mhelper-map",JSON.stringify({seed:$("sm_seed").value,dim:dim,bm:bm,layers:on,ver:VER[mcI][0],ox:ox,oz:oz,sc:sc,fade:fade}))}catch(e){}}
+ function loadMap(){try{var d=JSON.parse(localStorage.getItem("mhelper-map")||"null");if(!d)return false;if(d.seed!=null){$("sm_seed").value=d.seed;seed=parse(String(d.seed))}if(d.dim)dim=d.dim;if(d.bm!=null)bm=d.bm?1:0;if(d.layers){var k;for(k in d.layers)on[k]=d.layers[k]?1:0}if(d.ver){var i=VER.map(function(v){return v[0]}).indexOf(d.ver);if(i>=0)mcI=i}if(d.ox!=null)ox=+d.ox;if(d.oz!=null)oz=+d.oz;if(d.sc)sc=+d.sc;if(d.fade)fade=d.fade;return true}catch(e){return false}}
+ function go(keep){var t=$("sm_seed").value;seed=parse(t);$("sm_seed").value=seed.toString();if(!keep){ox=oz=0;sc=1}draw();saveMap();info("Сид "+seed+". Перетаскивайте карту, колесо мыши или кнопки меняют масштаб.")}
+ function zoom(f,px,py){var w=cv.width,h=cv.height,n=Math.min(8,Math.max(0.02,sc*f));if(px==null){px=w/2;py=h/2}ox+=(px-w/2)*(1/sc-1/n);oz+=(py-h/2)*(1/sc-1/n);sc=n;draw();saveMap()}
  function pos(e){var r=cv.getBoundingClientRect();return[(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]}
  var SMIN={igloo:"1.9",outpost:"1.14",monument:"1.8",mansion:"1.11",portal:"1.16",ship:"1.13",ruin:"1.13",city:"1.19",trail:"1.20",trial:"1.21",bast:"1.16",nportal:"1.16",ecity:"1.9",gate:"1.9"};
  function verOk(min){if(!min)return true;var c=VER[mcI][0].split(".").map(Number),n=min.split(".").map(Number),i;for(i=0;i<3;i++){var a=c[i]||0,b=n[i]||0;if(a!==b)return a>b}return true}
@@ -357,25 +359,25 @@ var SM=(function(){
  function lay(){var cb=function(k,l){return'<label class="chk"><input type="checkbox" data-k="'+k+'"'+(on[k]?" checked":"")+'>'+'<img src="'+badge(k)+'" alt="" width="22" height="22" style="vertical-align:-5px;margin-right:6px">'+l+"</label>"};
   $("sm_sl").hidden=dim!="o";$("sm_ly").innerHTML=ST.filter(function(t){return t[8]==dim&&stOk(t[0])&&(!BIO.ex||rsz(t)>0)}).map(function(t){return cb(t[0],t[1])}).join("")+(dim=="e"&&stOk("gate")?cb("gate","Врата Энда"):"")}
  ["village","desert","igloo","jungle","swamp","outpost","monument","mansion","portal","ship","ruin","city","trail","trial","fort","bast","ecity","gate"].forEach(function(k){MK[k].addEventListener("load",function(){BADGE={};lay()})});
- function init(){cv=$("sm_cv");cx=cv.getContext("2d");
-  $("sm_dm").innerHTML=[["o","Поверхность"],["n","Ад"],["e","Энд"]].map(function(d){return'<button type="button" class="add dm'+(d[0]=="o"?" act":"")+'" data-d="'+d[0]+'">'+d[1]+"</button>"}).join("");lay();
-  $("sm_dm").onclick=function(e){var d=e.target.dataset.d;if(!d)return;dim=d;[].forEach.call($("sm_dm").children,function(k){k.classList.toggle("act",k.dataset.d==d)});lay();ox=oz=0;sc=1;draw();info(d=="o"?"Поверхность.":d=="n"?"Ад: координаты Нижнего мира.":"Энд: города появляются только на внешних островах, дальше 1000 блоков от центра.")};
-  $("sm_bm").onclick=function(){bm=bm?0:1;this.classList.toggle("act",!!bm);this.setAttribute("aria-pressed",bm?"true":"false");this.textContent="Биомы: "+(bm?"вкл":"выкл");if(bm)bioLoad();draw()};
-  $("sm_sl").onclick=function(){on.slime=on.slime?0:1;this.classList.toggle("act",!!on.slime);this.setAttribute("aria-pressed",on.slime?"true":"false");this.textContent="Слайм-чанки: "+(on.slime?"вкл":"выкл");draw()};
+ function init(){cv=$("sm_cv");cx=cv.getContext("2d");var kept=loadMap();
+  $("sm_dm").innerHTML=[["o","Поверхность"],["n","Ад"],["e","Энд"]].map(function(d){return'<button type="button" class="add dm'+(d[0]==dim?" act":"")+'" data-d="'+d[0]+'">'+d[1]+"</button>"}).join("");lay();
+  $("sm_dm").onclick=function(e){var d=e.target.dataset.d;if(!d)return;dim=d;[].forEach.call($("sm_dm").children,function(k){k.classList.toggle("act",k.dataset.d==d)});lay();ox=oz=0;sc=1;draw();saveMap();info(d=="o"?"Поверхность.":d=="n"?"Ад: координаты Нижнего мира.":"Энд: города появляются только на внешних островах, дальше 1000 блоков от центра.")};
+  $("sm_bm").onclick=function(){bm=bm?0:1;this.classList.toggle("act",!!bm);this.setAttribute("aria-pressed",bm?"true":"false");this.textContent="Биомы: "+(bm?"вкл":"выкл");if(bm)bioLoad();draw();saveMap()};
+  $("sm_sl").onclick=function(){on.slime=on.slime?0:1;this.classList.toggle("act",!!on.slime);this.setAttribute("aria-pressed",on.slime?"true":"false");this.textContent="Слайм-чанки: "+(on.slime?"вкл":"выкл");draw();saveMap()};
   var sel=$("sm_mc"),og={},oh="";VER.forEach(function(v,i){var g=v[2]?"Новее 1.21.4 (расчёт по 1.21.4)":v[0].split(".").slice(0,2).join(".");if(!og[g]){og[g]=1;oh+=(oh?"</optgroup>":"")+'<optgroup label="'+g+'">'}oh+='<option value="'+i+'"'+(i==mcI?" selected":"")+">"+v[0]+"</option>"});sel.innerHTML=oh+"</optgroup>";
   function vnote(){var v=VER[mcI],t="";if(v[2])t="Версия "+v[0]+" новее 1.21.4: считается генерация 1.21.4. Mojang могла изменить генерацию в новых версиях, это не проверено.";else if(v[0]!=CL[v[1]])t="Для версии "+v[0]+" используется генератор "+CL[v[1]]+": это ближайшая версия, которую поддерживает библиотека.";$("sm_vn").textContent=t;$("sm_vn").hidden=!t}
-  vnote();sel.onchange=function(){mcI=+sel.value;RSZ={};SPC={};BC=null;BIO.key="";lgKey="";vnote();lay();draw()};
+  vnote();sel.onchange=function(){mcI=+sel.value;RSZ={};SPC={};BC=null;BIO.key="";lgKey="";vnote();lay();draw();saveMap()};
   bioLoad();
-  $("sm_ly").onchange=function(e){on[e.target.dataset.k]=e.target.checked?1:0;draw()};
+  $("sm_ly").onchange=function(e){on[e.target.dataset.k]=e.target.checked?1:0;draw();saveMap()};
   $("sm_go").onclick=go;$("sm_rnd").onclick=function(){$("sm_seed").value="";go()};$("sm_seed").onkeydown=function(e){if(e.key=="Enter")go()};
   $("sm_zi").onclick=function(){zoom(1.5)};$("sm_zo").onclick=function(){zoom(1/1.5)};
-  $("sm_tp").onclick=function(){ox=+$("sm_x").value||0;oz=+$("sm_z").value||0;draw()};
+  $("sm_tp").onclick=function(){ox=+$("sm_x").value||0;oz=+$("sm_z").value||0;draw();saveMap()};
   cv.onpointerdown=function(e){cv.setPointerCapture(e.pointerId);drag={p:pos(e),ox:ox,oz:oz,m:0}};
   cv.onpointermove=function(e){var p=pos(e);if(drag){var dx=p[0]-drag.p[0],dz=p[1]-drag.p[1];if(Math.abs(dx)+Math.abs(dz)>4)drag.m=1;ox=drag.ox-dx/sc;oz=drag.oz-dz/sc;draw()}
    var bx=Math.floor(ox+(p[0]-cv.width/2)/sc),bz=Math.floor(oz+(p[1]-cv.height/2)/sc);$("sm_pos").textContent="X "+bx+"  Z "+bz+"  (чанк "+(bx>>4)+", "+(bz>>4)+")"+(dim=="o"&&on.slime?(slime(bx>>4,bz>>4)?"  слайм-чанк":""):"");if(bm){var bi=bioAt(bx,bz);if(bi!=null)$("sm_pos").textContent+="  биом: "+bname(bi)}};
-  cv.onpointerup=function(e){var p=pos(e);if(drag&&!drag.m){var b=null,d=14;hits.forEach(function(k){var q=Math.hypot(k.sx-p[0],k.sy-p[1]);if(q<d){d=q;b=k}});if(b){var s=b.x+" "+b.z;info(b.n+": X "+b.x+", Z "+b.z+" — скопировано");try{navigator.clipboard.writeText(s)}catch(x){}}}drag=null};
+  cv.onpointerup=function(e){var p=pos(e);if(drag&&!drag.m&&e.button===0){var b=null,d=16;hits.forEach(function(k){var q=Math.hypot(k.sx-p[0],k.sy-p[1]);if(q<d){d=q;b=k}});if(b){fade[b.id]=fade[b.id]?0:1;draw();saveMap();var s=b.x+" "+b.z;info((fade[b.id]?"Скрыто: ":"Показано: ")+b.n+" X "+b.x+", Z "+b.z);try{navigator.clipboard.writeText(s)}catch(x){}}}else if(drag&&drag.m)saveMap();drag=null};
   cv.onwheel=function(e){e.preventDefault();var p=pos(e);zoom(e.deltaY<0?1.25:0.8,p[0],p[1])};
-  addEventListener("resize",fit);go()}
+  addEventListener("resize",fit);var b=$("sm_bm");b.classList.toggle("act",!!bm);b.setAttribute("aria-pressed",bm?"true":"false");b.textContent="Биомы: "+(bm?"вкл":"выкл");var sl=$("sm_sl");sl.classList.toggle("act",!!on.slime);sl.setAttribute("aria-pressed",on.slime?"true":"false");sl.textContent="Слайм-чанки: "+(on.slime?"вкл":"выкл");go(kept)}
  return{show:function(){if(!cv)init();fit()}}
 })();
 vs.onchange=function(){try{localStorage.setItem("mcv",vs.selectedIndex)}catch(e){}show()};
