@@ -331,22 +331,25 @@ var SM=(function(){
   for(var gx=Math.floor(x0/st)*st;gx<=x1;gx+=st){cx.moveTo(X(gx)+.5,0);cx.lineTo(X(gx)+.5,h)}for(var gz=Math.floor(z0/st)*st;gz<=z1;gz+=st){cx.moveTo(0,Z(gz)+.5);cx.lineTo(w,Z(gz)+.5)}cx.stroke();
   cx.strokeStyle=hb?"#000":dim=="o"?css("--ink"):"#ddd";cx.lineWidth=2;cx.beginPath();cx.moveTo(X(0),0);cx.lineTo(X(0),h);cx.moveTo(0,Z(0));cx.lineTo(w,Z(0));cx.stroke();
   stSkip=0;if(BIO.ex)bioInit();
-  ST.forEach(function(t){if(!on[t[0]]||t[8]!=dim)return;var W=BIO.ex?rsz(t):t[4];if(!W)return;var sp=W*16,r0=Math.floor(x0/sp)-1,r1=Math.floor(x1/sp)+1,q0=Math.floor(z0/sp)-1,q1=Math.floor(z1/sp)+1;
+  ST.forEach(function(t){if(!on[t[0]]||t[8]!=dim||!stOk(t[0]))return;var W=BIO.ex?rsz(t):t[4];if(!W)return;var sp=W*16,r0=Math.floor(x0/sp)-1,r1=Math.floor(x1/sp)+1,q0=Math.floor(z0/sp)-1,q1=Math.floor(z1/sp)+1;
    if(BIO.ex&&(r1-r0+1)*(q1-q0+1)>2500){stSkip=1;return}
    for(var rx=r0;rx<=r1;rx++)for(var rz=q0;rz<=q1;rz++){var bx,bz;
     if(BIO.ex){var c=spos(t,rx,rz);if(!c)continue;bx=c[0];bz=c[1]}
     else{var p=reg(rx,rz,t);bx=p[0]*16+8;bz=p[1]*16+8;if((t[9]=="F"||t[9]=="B")&&nk(p[0],p[1])!=t[9])continue;if(t[9]=="P"&&!frq(p[0],p[1]))continue;if(t[9]=="E"&&Math.hypot(bx,bz)<1008)continue}
     if(bx<x0||bx>x1||bz<z0||bz>z1)continue;
     cx.textAlign="center";cx.textBaseline="middle";var mk=MK[t[0]];if(mk&&mk.complete&&mk.naturalWidth){var ms=18;cx.drawImage(mk,X(bx)-ms/2,Z(bz)-ms/2,ms,ms);}else{cx.font="18px sans-serif";cx.fillStyle=t[2];cx.fillText(t[3],X(bx),Z(bz));}hits.push({x:bx,z:bz,n:t[1],sx:X(bx),sy:Z(bz)})}});
-  if(dim=="e"&&on.gate)for(var gi=0;gi<20;gi++){var ga=2*(-Math.PI+Math.PI/20*gi),gx2=Math.floor(96*Math.cos(ga)),gz2=Math.floor(96*Math.sin(ga));cx.textAlign="center";cx.textBaseline="middle";var gk=MK.gate;if(gk&&gk.complete&&gk.naturalWidth){cx.drawImage(gk,X(gx2)-9,Z(gz2)-9,18,18);}else{cx.font="18px sans-serif";cx.fillStyle="#3fd0c9";cx.fillText("🚪",X(gx2),Z(gz2));}hits.push({x:gx2,z:gz2,n:"Врата Энда",sx:X(gx2),sy:Z(gz2)})}
+  if(dim=="e"&&on.gate&&stOk("gate"))for(var gi=0;gi<20;gi++){var ga=2*(-Math.PI+Math.PI/20*gi),gx2=Math.floor(96*Math.cos(ga)),gz2=Math.floor(96*Math.sin(ga));cx.textAlign="center";cx.textBaseline="middle";var gk=MK.gate;if(gk&&gk.complete&&gk.naturalWidth){cx.drawImage(gk,X(gx2)-9,Z(gz2)-9,18,18);}else{cx.font="18px sans-serif";cx.fillStyle="#3fd0c9";cx.fillText("🚪",X(gx2),Z(gz2));}hits.push({x:gx2,z:gz2,n:"Врата Энда",sx:X(gx2),sy:Z(gz2)})}
  legend(x0,x1,z0,z1)}
  function fit(){if(!cv)return;cv.width=cv.clientWidth;cv.height=Math.max(340,Math.round(innerHeight*.62));draw()}
  function info(t){$("sm_inf").textContent=t}
  function go(){var t=$("sm_seed").value;seed=parse(t);$("sm_seed").value=seed.toString();ox=oz=0;sc=1;draw();info("Сид "+seed+". Перетаскивайте карту, колесо мыши или кнопки меняют масштаб.")}
  function zoom(f,px,py){var w=cv.width,h=cv.height,n=Math.min(8,Math.max(0.02,sc*f));if(px==null){px=w/2;py=h/2}ox+=(px-w/2)*(1/sc-1/n);oz+=(py-h/2)*(1/sc-1/n);sc=n;draw()}
  function pos(e){var r=cv.getBoundingClientRect();return[(e.clientX-r.left)*cv.width/r.width,(e.clientY-r.top)*cv.height/r.height]}
+ var SMIN={igloo:"1.9",outpost:"1.14",monument:"1.8",mansion:"1.11",portal:"1.16",ship:"1.13",ruin:"1.13",city:"1.19",trail:"1.20",trial:"1.21",bast:"1.16",nportal:"1.16",ecity:"1.9",gate:"1.9"};
+ function verOk(min){if(!min)return true;var c=VER[mcI][0].split(".").map(Number),n=min.split(".").map(Number),i;for(i=0;i<3;i++){var a=c[i]||0,b=n[i]||0;if(a!==b)return a>b}return true}
+ function stOk(id){return verOk(SMIN[id])}
  function lay(){var icon=function(s){return'<span style="font-size:16px;display:inline-block;width:20px;text-align:center">'+s+'</span>'},cb=function(k,s,l){return'<label class="chk"><input type="checkbox" data-k="'+k+'"'+(on[k]?" checked":"")+'>'+(s?icon(s):"")+l+"</label>"};
-  $("sm_sl").hidden=dim!="o";$("sm_ly").innerHTML=ST.filter(function(t){return t[8]==dim&&(!BIO.ex||rsz(t)>0)}).map(function(t){return cb(t[0],t[0]=="village"?"":t[3],t[1])}).join("")+(dim=="e"?cb("gate","🚪","Врата Энда"):"")}
+  $("sm_sl").hidden=dim!="o";$("sm_ly").innerHTML=ST.filter(function(t){return t[8]==dim&&stOk(t[0])&&(!BIO.ex||rsz(t)>0)}).map(function(t){return cb(t[0],t[0]=="village"?"":t[3],t[1])}).join("")+(dim=="e"&&stOk("gate")?cb("gate","🚪","Врата Энда"):"")}
  function init(){cv=$("sm_cv");cx=cv.getContext("2d");
   $("sm_dm").innerHTML=[["o","Поверхность"],["n","Ад"],["e","Энд"]].map(function(d){return'<button type="button" class="add dm'+(d[0]=="o"?" act":"")+'" data-d="'+d[0]+'">'+d[1]+"</button>"}).join("");lay();
   $("sm_dm").onclick=function(e){var d=e.target.dataset.d;if(!d)return;dim=d;[].forEach.call($("sm_dm").children,function(k){k.classList.toggle("act",k.dataset.d==d)});lay();ox=oz=0;sc=1;draw();info(d=="o"?"Поверхность.":d=="n"?"Ад: координаты Нижнего мира.":"Энд: города появляются только на внешних островах, дальше 1000 блоков от центра.")};
@@ -354,7 +357,7 @@ var SM=(function(){
   $("sm_sl").onclick=function(){on.slime=on.slime?0:1;this.classList.toggle("act",!!on.slime);this.setAttribute("aria-pressed",on.slime?"true":"false");this.textContent="Слайм-чанки: "+(on.slime?"вкл":"выкл");draw()};
   var sel=$("sm_mc"),og={},oh="";VER.forEach(function(v,i){var g=v[2]?"Новее 1.21.4 (расчёт по 1.21.4)":v[0].split(".").slice(0,2).join(".");if(!og[g]){og[g]=1;oh+=(oh?"</optgroup>":"")+'<optgroup label="'+g+'">'}oh+='<option value="'+i+'"'+(i==mcI?" selected":"")+">"+v[0]+"</option>"});sel.innerHTML=oh+"</optgroup>";
   function vnote(){var v=VER[mcI],t="";if(v[2])t="Версия "+v[0]+" новее 1.21.4: считается генерация 1.21.4. Mojang могла изменить генерацию в новых версиях, это не проверено.";else if(v[0]!=CL[v[1]])t="Для версии "+v[0]+" используется генератор "+CL[v[1]]+": это ближайшая версия, которую поддерживает библиотека.";$("sm_vn").textContent=t;$("sm_vn").hidden=!t}
-  vnote();sel.onchange=function(){mcI=+sel.value;RSZ={};SPC={};BC=null;BIO.key="";lgKey="";vnote();if(BIO.ex)lay();draw()};
+  vnote();sel.onchange=function(){mcI=+sel.value;RSZ={};SPC={};BC=null;BIO.key="";lgKey="";vnote();lay();draw()};
   bioLoad();
   $("sm_ly").onchange=function(e){on[e.target.dataset.k]=e.target.checked?1:0;draw()};
   $("sm_go").onclick=go;$("sm_rnd").onclick=function(){$("sm_seed").value="";go()};$("sm_seed").onkeydown=function(e){if(e.key=="Enter")go()};
