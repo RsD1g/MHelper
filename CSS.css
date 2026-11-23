@@ -43,14 +43,3 @@ table {
 }
 
 /*///////////////////////////*/
-pre {
-  background-color: #1e1e1e;
-  padding: 12px 16px;
-  border-radius: 6px;
-  overflow-x: auto;
-}
-
-pre code {
-  color: #facc15; /* Жёлтый цвет текста */
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
