@@ -32,12 +32,13 @@ input[type=text],input[type=number],select,textarea{font:inherit;color:var(--ink
 .bar{display:flex;gap:8px;align-items:center;margin-top:10px}
 button{font:inherit;font-weight:600;background:var(--acc);color:var(--accink);border:0;border-radius:4px;padding:9px 16px;cursor:pointer}
 .note{color:var(--mute);font-size:13px}
-.row{display:flex;gap:8px;margin-bottom:8px}.row>*{min-width:0}.add,.x{background:var(--line);color:var(--ink)}.x{padding:6px 12px}.sub{margin:20px 0 8px;font-size:16px}.sec{grid-column:1/-1}.sm{max-width:1000px;margin:auto;padding:0 20px 30px}.smb{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}.smb input{flex:1;min-width:140px;font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px}.dm.act{background:var(--acc);color:var(--accink)}.sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.35);vertical-align:-2px;margin-right:6px}.tgb.act{background:var(--acc);color:var(--accink)}.sml{display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:10px;font-size:14px}#sm_cv{width:100%;display:block;border:1px solid var(--line);border-radius:6px;touch-action:none;cursor:grab;background:var(--bg)}.mw{min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;text-align:center}.mb{display:block;width:min(320px,100%);padding:18px;border-radius:6px;background:var(--acc);color:var(--accink);font-weight:700;font-size:18px;text-decoration:none}.mb.alt{background:var(--panel);color:var(--ink);border:1px solid var(--line)}.mb:focus-visible,.back:focus-visible{outline:2px solid var(--acc);outline-offset:2px}.back{display:inline-block;margin:20px;color:var(--ink);text-decoration:none}details{margin-top:14px}summary{cursor:pointer;color:var(--mute)}details .grid{margin-top:10px}
+.row{display:flex;gap:8px;margin-bottom:8px}.row>*{min-width:0}.add,.x{background:var(--line);color:var(--ink)}.x{padding:6px 12px}.sub{margin:20px 0 8px;font-size:16px}.sec{grid-column:1/-1}.sm{max-width:1000px;margin:auto;padding:0 20px 30px}.smb{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}.smb input{flex:1;min-width:140px;font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px}.dm.act{background:var(--acc);color:var(--accink)}.sw{display:inline-block;width:14px;height:14px;border-radius:3px;border:1px solid rgba(0,0,0,.35);vertical-align:-2px;margin-right:6px}.tgb.act{background:var(--acc);color:var(--accink)}.sml{display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:10px;font-size:14px}#sm_cv{width:100%;display:block;border:1px solid var(--line);border-radius:6px;touch-action:none;cursor:grab;background:var(--bg)}.mw{min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:20px;text-align:center}.mb{display:block;width:min(320px,100%);padding:18px;border-radius:6px;background:var(--acc);color:var(--accink);font-weight:700;font-size:18px;text-decoration:none}.mb.alt{background:var(--panel);color:var(--ink);border:1px solid var(--line)}.mb:focus-visible,.back:focus-visible{outline:2px solid var(--acc);outline-offset:2px}.back{display:inline-block;margin:20px;color:var(--ink);text-decoration:none}.drop{border:2px dashed var(--line);border-radius:6px;padding:28px;text-align:center;background:var(--bg)}details{margin-top:14px}summary{cursor:pointer;color:var(--mute)}details .grid{margin-top:10px}
 @media(max-width:720px){main{grid-template-columns:1fr}nav{position:static;flex-direction:row;flex-wrap:wrap}nav a{border:1px solid var(--line);background:var(--panel)}}
 </style>
 </head>
 <body>
-<div id="menu" hidden><div class="mw"><h1>Minecraft Java</h1><p class="note">Выберите раздел</p><a class="mb" href="#give">Команды</a><a class="mb alt" href="#empty">Карта сида</a></div></div>
+<div id="menu" hidden><div class="mw"><h1>Minecraft Java</h1><p class="note">Выберите раздел</p><a class="mb" href="#give">Команды</a><a class="mb alt" href="#empty">Карта сида</a><a class="mb alt" href="#compile">Компилятор</a></div></div>
+<div id="compile" hidden><a class="back" href="#menu">← В меню</a><div class="sm"><section><h2>Компилятор</h2><p class="desc">Загрузите ZIP с уже разложенным модом: fabric.mod.json или META-INF/mods.toml и готовые .class. Сайт упакует это в JAR. Исходники .java в браузере не компилируются.</p><div class="drop" id="jar_drop">Перетащите ZIP сюда или выберите файл<input id="jar_file" type="file" accept=".zip,application/zip"></div><p class="note" id="jar_msg"></p><div class="bar"><a id="jar_dl" hidden download="mod.jar">Скачать JAR</a></div></section></div></div>
 <div id="empty" hidden><a class="back" href="#menu">← В меню</a><div class="sm"><div class="smb"><input id="sm_seed" type="text" placeholder="Сид: число или текст" autocomplete="off" spellcheck="false"><button id="sm_go" type="button">Показать</button><button class="add" id="sm_rnd" type="button">Случайный</button></div>
 <div class="smb" id="sm_dm"></div>
 <div class="smb"><select id="sm_mc" aria-label="Версия Minecraft Java" style="width:auto;min-width:200px"></select><button type="button" class="add tgb act" id="sm_bm" aria-pressed="true">Биомы: вкл</button><button type="button" class="add tgb act" id="sm_sl" aria-pressed="true">Слайм-чанки: вкл</button></div>
@@ -238,7 +239,7 @@ var RT="";try{RT=location.hash}catch(e){}
 function go2(h){RT=h;try{if(location.hash!==h)history.pushState(null,"",h)}catch(e){try{location.hash=h}catch(e2){}}show();scrollTo(0,0)}
 document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest("a[href^='#']");if(!a||e.button||e.ctrlKey||e.metaKey||e.shiftKey)return;e.preventDefault();go2(a.getAttribute("href"))});
 function show(){
-var u=function(i){return document.getElementById(i)},hh=(RT||"#menu").slice(1),mm=hh=="menu",ee=hh=="empty";u("menu").hidden=!mm;u("empty").hidden=!ee;u("hd").hidden=u("mn").hidden=mm||ee;if(ee)SM.show();if(mm||ee)return;
+var u=function(i){return document.getElementById(i)},hh=(RT||"#menu").slice(1),mm=hh=="menu",ee=hh=="empty",cc=hh=="compile";u("menu").hidden=!mm;u("empty").hidden=!ee;u("compile").hidden=!cc;u("hd").hidden=u("mn").hidden=mm||ee||cc;if(ee)SM.show();if(mm||ee||cc)return;
  var V=vs.selectedIndex,id=(RT||"#give").slice(1),g=G.filter(function(x){return x.id==id})[0]||G[0];
  [].forEach.call(nav.children,function(a){a.className=a.dataset.id==g.id?"on":""});
  if(g.id=="give"){giveUI(V);return}
@@ -368,6 +369,38 @@ var SM=(function(){
 })();
 vs.onchange=function(){try{localStorage.setItem("mcv",vs.selectedIndex)}catch(e){}show()};
 addEventListener("hashchange",function(){try{RT=location.hash}catch(e){}show()});addEventListener("popstate",function(){try{RT=location.hash}catch(e){}show()});show();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script>
+(function(){
+ var drop=document.getElementById("jar_drop"),file=document.getElementById("jar_file"),msg=document.getElementById("jar_msg"),dl=document.getElementById("jar_dl");
+ function say(t){msg.textContent=t}
+ drop.ondragover=function(e){e.preventDefault()};
+ drop.ondrop=function(e){e.preventDefault();if(e.dataTransfer.files[0])pack(e.dataTransfer.files[0])};
+ file.onchange=function(){if(file.files[0])pack(file.files[0])};
+ function manifestBase(names){
+  var fab=names.filter(function(n){return n.endsWith("fabric.mod.json")}).sort(function(a,b){return a.length-b.length})[0];
+  if(fab)return{kind:"Fabric",base:fab.slice(0,-"fabric.mod.json".length)};
+  var forge=names.filter(function(n){return /META-INF\/(neoforge\.)?mods\.toml$/.test(n)}).sort(function(a,b){return a.length-b.length})[0];
+  if(forge)return{kind:"Forge",base:forge.replace(/META-INF\/(neoforge\.)?mods\.toml$/,"")};
+  return null;
+ }
+ async function pack(f){
+  say("Читаю архив…");dl.hidden=true;
+  if(!window.JSZip){say("Не загрузилась библиотека JSZip.");return}
+  try{
+   var zip=await JSZip.loadAsync(f),names=Object.keys(zip.files).filter(function(n){return !zip.files[n].dir}),meta=manifestBase(names);
+   if(!meta){say("В архиве нет fabric.mod.json и META-INF/mods.toml.");return}
+   var out=new JSZip(),classes=0,javas=0,n,rel;
+   for(n of names){if(n.indexOf(meta.base)!==0)continue;rel=n.slice(meta.base.length);if(!rel)continue;if(rel.slice(-6)===".class")classes++;if(rel.slice(-5)===".java")javas++;out.file(rel,await zip.files[n].async("uint8array"))}
+   if(!classes){say(javas?"В архиве только .java. Браузер их не компилирует — положите готовые .class.":"В архиве нет файлов .class.");return}
+   if(!out.file("META-INF/MANIFEST.MF"))out.file("META-INF/MANIFEST.MF","Manifest-Version: 1.0\nCreated-By: MHelper\n");
+   var blob=await out.generateAsync({type:"blob",mimeType:"application/java-archive"});
+   dl.href=URL.createObjectURL(blob);dl.download=(f.name||"mod").replace(/\.zip$/i,"")+".jar";dl.hidden=false;
+   say(meta.kind+": собрано классов "+classes+". Нажмите «Скачать JAR». Это упаковка, не компиляция Java.");
+  }catch(e){say("Не получилось прочитать ZIP: "+e.message)}
+ }
+})();
 </script>
 </body>
 </html>
