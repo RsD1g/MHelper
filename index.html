@@ -77,7 +77,7 @@ struct_end:W("end_city")
 var E12={protection:0,fire_protection:1,feather_falling:2,blast_protection:3,projectile_protection:4,respiration:5,aqua_affinity:6,thorns:7,depth_strider:8,frost_walker:9,binding_curse:10,sharpness:16,smite:17,bane_of_arthropods:18,knockback:19,fire_aspect:20,looting:21,sweeping:22,efficiency:32,silk_touch:33,unbreaking:34,fortune:35,power:48,punch:49,flame:50,infinity:51,luck_of_the_sea:61,lure:62,mending:70,vanishing_curse:71};
 var COL=W("white gray dark_gray black red gold yellow green dark_green aqua dark_aqua blue dark_blue light_purple dark_purple");
 var T=function(k,l,d,dl){return{k:k,l:l,t:"t",d:d==null?"":d,dl:dl}};
-var N=function(k,l,d){return{k:k,l:l,t:"n",d:d}};
+var N=function(k,l,d,mx){return{k:k,l:l,t:"n",d:d,mx:mx}};
 var S=function(k,l,o,d){return{k:k,l:l,t:"s",o:o,d:d||o[0]}};
 var C=function(k,l){return{k:k,l:l,t:"c"}};
 var tg=function(){return T("tg","Цель","@p","sel")};
@@ -108,7 +108,7 @@ var G=[
   return V==0?"/setblock "+v.x+" "+v.y+" "+v.z+" "+v.b+" "+(+v.st||0)+" "+v.m+(v.nb?" "+v.nb:""):"/setblock "+v.x+" "+v.y+" "+v.z+" "+v.b+(s.length?"["+s.join(",")+"]":"")+v.nb+" "+v.m}},
 {id:"effect",n:"Effect",t:"Выдать или снять эффект",f:[S("a","Действие",["give","clear"]),tg(),T("ef","Эффект (при clear пусто = все)","speed","eff"),N("s","Секунды",30),C("inf","Бесконечно (1.19.4+)"),N("am","Уровень (с 0)",0),C("hp","Скрыть частицы")],
  g:function(v,V){if(v.a=="clear")return V==0?"/effect "+v.tg+" clear":"/effect clear "+v.tg+(v.ef?" "+v.ef:"");var t=(v.inf&&V>0?"infinite":v.s)+" "+v.am+(v.hp?" true":"");return V==0?"/effect "+v.tg+" "+v.ef+" "+t:"/effect give "+v.tg+" "+v.ef+" "+t}},
-{id:"enchant",n:"Enchant",t:"Зачаровать предмет в руке цели",f:[tg(),T("en","Зачарование","sharpness","ench"),N("l","Уровень",5)],g:function(v){return"/enchant "+v.tg+" "+v.en+" "+v.l}},
+{id:"enchant",n:"Enchant",t:"До обычного максимума — /enchant. Выше — выдача предмета с чарами в данных (до 255).",f:[tg(),T("it","Предмет для уровня выше максимума","netherite_sword","item"),T("en","Зачарование","sharpness","ench"),N("l","Уровень",5,255)],g:function(v,V){var cap={protection:4,fire_protection:4,feather_falling:4,blast_protection:4,projectile_protection:4,respiration:3,aqua_affinity:1,thorns:3,depth_strider:3,frost_walker:2,binding_curse:1,sharpness:5,smite:5,bane_of_arthropods:5,knockback:2,fire_aspect:2,looting:3,sweeping:3,efficiency:5,silk_touch:1,unbreaking:3,fortune:3,power:5,punch:2,flame:1,infinity:1,luck_of_the_sea:3,lure:3,mending:1,vanishing_curse:1,soul_speed:3,swift_sneak:3,density:5,breach:4,wind_burst:3},id=String(v.en||"sharpness").replace(/^minecraft:/,""),n=Math.max(1,Math.min(255,Math.round(+v.l)||1));if(n<=(cap[id]||1))return"/enchant "+v.tg+" "+id+" "+n;var item=v.it||"netherite_sword";if(V==0)return"/give "+v.tg+" "+item+" 1 0 {ench:[{id:"+(id in E12?E12[id]:0)+",lvl:"+n+"}]}";if(V==1)return"/give "+v.tg+" "+item+"{Enchantments:[{id:\"minecraft:"+id+"\",lvl:"+n+"s}]}";if(V==2)return"/give "+v.tg+" "+item+"[enchantments={levels:{"+id+":"+n+"}}]";return"/give "+v.tg+" "+item+"[enchantments={"+id+":"+n+"}]"}},
 {id:"gamemode",n:"Gamemode",t:"Режим игры игрока или режим по умолчанию",f:[S("a","Команда",["gamemode","defaultgamemode"]),S("m","Режим",["survival","creative","adventure","spectator"]),tg()],g:function(v){return v.a=="gamemode"?"/gamemode "+v.m+" "+v.tg:"/defaultgamemode "+v.m}},
 {id:"tp",n:"Teleport",t:"Телепорт к точке или существу, с поворотом",f:[tg(),S("w","Как",["координаты","к существу","координаты + поворот","координаты + смотреть на точку","координаты + смотреть на существо"]),T("x","X","~"),T("y","Y","~10"),T("z","Z","~"),T("to","Существо-цель","@s","sel"),T("yw","Поворот (yaw)","~"),T("pt","Наклон (pitch)","~"),T("fx","Смотреть на X","~"),T("fy","Смотреть на Y","~"),T("fz","Смотреть на Z","~"),T("fe","Смотреть на существо","@s","sel")],
  g:function(v,V){var b="/tp "+v.tg+" ",c=v.x+" "+v.y+" "+v.z,w=v.w;if(w=="к существу")return b+v.to;if(w=="координаты + поворот")return b+c+" "+v.yw+" "+v.pt;if(V==0||w=="координаты")return b+c;if(w=="координаты + смотреть на точку")return b+c+" facing "+v.fx+" "+v.fy+" "+v.fz;return b+c+" facing entity "+v.fe}},
@@ -151,7 +151,7 @@ function giveUI(V){
  var $=function(i){return document.getElementById(i)};
  var op=function(a,d){return a.map(function(o){return"<option"+(o==d?" selected":"")+">"+o+"</option>"}).join("")};
  var X='<button class="x" type="button" aria-label="Удалить">×</button>';
- var er=function(n,l){return'<div class="row"><input type="text" class="en" list="dl_ench" placeholder="зачарование" value="'+n+'"><input type="number" class="el" value="'+l+'" style="max-width:90px">'+X+"</div>"};
+ var er=function(n,l){return'<div class="row"><input type="text" class="en" list="dl_ench" placeholder="зачарование" value="'+n+'"><input type="number" class="el" min="1" max="255" value="'+l+'" style="max-width:90px">'+X+"</div>"};
  var ar=function(){return'<div class="row"><select class="at">'+op(ATTR)+'</select><input type="number" step="any" class="am" value="5" style="max-width:100px"><select class="ao">'+op(["add","multiply_base","multiply"])+'</select><select class="as">'+op(["any","mainhand","offhand","head","chest","legs","feet"])+"</select>"+X+"</div>"};
  var f=function(id,l,v,t,dl,c){return"<label"+(c?' class="'+c+'"':"")+">"+l+'<input id="'+id+'" type="'+(t||"text")+'" value="'+v+'"'+(dl?' list="dl_'+dl+'"':"")+' autocomplete="off" spellcheck="false"></label>'};
  var ck=function(id,l,c){return'<label class="chk"><input type="checkbox" id="'+id+'"'+(c?" checked":"")+">"+l+"</label>"};
@@ -251,7 +251,7 @@ var u=function(i){return document.getElementById(i)},hh=(RT||"#menu").slice(1),m
   var i='id="f_'+f.k+'"',lab;
   if(f.t=="s")lab='<label>'+f.l+'<select '+i+'>'+f.o.map(function(o){return'<option'+(o==f.d?" selected":"")+'>'+o+'</option>'}).join("")+'</select></label>';
   else if(f.t=="c")lab='<label class="chk"><input type="checkbox" '+i+'>'+f.l+'</label>';
-  else{var dl=f.dl=="p"&&V==0?"p0":f.dl;lab='<label>'+f.l+'<input '+(f.t=="n"?'type="number" step="any"':'type="text" autocomplete="off" spellcheck="false"')+' '+i+' value="'+String(f.d).replace(/"/g,"&quot;")+'"'+(dl?' list="dl_'+dl+'"':"")+'></label>'}
+  else{var dl=f.dl=="p"&&V==0?"p0":f.dl;lab='<label>'+f.l+'<input '+(f.t=="n"?'type="number" step="any"'+(f.mx!=null?' min="1" max="'+f.mx+'"':""):'type="text" autocomplete="off" spellcheck="false"')+' '+i+' value="'+String(f.d).replace(/"/g,"&quot;")+'"'+(dl?' list="dl_'+dl+'"':"")+'></label>'}
   h+=lab});
  h+='</div>'+(g.f.some(function(f){return f.k=="tg"})?SB:"")+'<div class="out" id="out"></div><div class="bar"><button id="cp">Копировать</button><span class="note" id="st"></span></div><p class="note">Список подсказок неполный: можно ввести любое значение вручную. В 1.12 названия некоторых блоков и предметов отличаются (например, grass вместо grass_block).</p>';
  panel.innerHTML=h;
