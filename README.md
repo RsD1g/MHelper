@@ -157,8 +157,3 @@ python3 tools/gen_registry.py generated > registry.yml
 
 Проект не является официальным продуктом Minecraft и не связан с Mojang или Microsoft.
 
-<div align="center">
-  <a href="file:///C:/Users/%D0%9F%D0%BE%D0%BB%D1%8C%D0%B7%D0%BE%D0%B2%D0%B0%D1%82%D0%B5%D0%BB%D1%8C/MHelper/index.html#effect">
-    <img src="https://demolab.com" alt="Перейти на сайт">
-  </a>
-</div>
